@@ -2,7 +2,7 @@
 
 A custom view for Android that displays a duration in a circular fashion.
 
-[![](https://jitpack.io/v/hifnawy/CircularDurationView.svg)](https://jitpack.io/#hifnawy/CircularDurationView)
+[![](https://jitpack.io/v/abdalmoniem/CircularDurationView.svg)](https://jitpack.io/#abdalmoniem/CircularDurationView)
 
 ## Screenshot
 
