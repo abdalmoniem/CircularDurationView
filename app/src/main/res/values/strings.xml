@@ -1,3 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">CircularDurationView</string>
+    <string name="settings_card_title">Settings</string>
+    <string name="app_theme_pref">Theme</string>
+    <string name="app_theme_system_default">System Default</string>
+    <string name="app_theme_system_light">Light</string>
+    <string name="app_theme_system_dark">Dark</string>
+    <string name="material_you_pref">Material You</string>
+    <string name="material_you_pref_not_available">Material You theming is only available on Android 12 and up</string>
+    <string name="material_you_pref_description">Match the App.\'s colors to your wallpaper\'s colors.</string>
+    <string name="material_you_pref_off">Material You Off</string>
+    <string name="material_you_pref_on">Material You On</string>
+    <string name="picture_in_picture_pref">Enable Picture in Picture</string>
+    <string name="picture_in_picture_pref_description">Enable Picture in Picture to keep the App. running in the background</string>
+    <string name="picture_in_picture_pref_off">Picture in Picture Off</string>
+    <string name="picture_in_picture_pref_on">Picture in Picture On</string>
+    <string name="progress_indicator_hours_pref">Hours</string>
+    <string name="progress_indicator_minutes_pref">Minutes</string>
+    <string name="progress_indicator_seconds_pref">Seconds</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
 </resources>

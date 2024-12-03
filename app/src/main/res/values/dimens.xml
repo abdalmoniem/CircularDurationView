@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="prefTextSize">20sp</dimen>
+    <dimen name="prefsDescriptionTextSize">15sp</dimen>
+</resources>

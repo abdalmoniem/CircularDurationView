@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Standard Contrast Colors -->
+    <color name="md_theme_primary_dynamic">@color/m3_ref_palette_dynamic_primary40</color>
+    <color name="md_theme_onPrimary_dynamic">@color/m3_ref_palette_dynamic_primary100</color>
+    <color name="md_theme_primaryContainer_dynamic">@color/m3_ref_palette_dynamic_primary90</color>
+    <color name="md_theme_onPrimaryContainer_dynamic">@color/m3_ref_palette_dynamic_primary10</color>
+    <color name="md_theme_secondary_dynamic">@color/m3_ref_palette_dynamic_secondary40</color>
+    <color name="md_theme_onSecondary_dynamic">@color/m3_ref_palette_dynamic_secondary100</color>
+    <color name="md_theme_secondaryContainer_dynamic">@color/m3_ref_palette_dynamic_secondary90</color>
+    <color name="md_theme_onSecondaryContainer_dynamic">@color/m3_ref_palette_dynamic_secondary10</color>
+    <color name="md_theme_tertiary_dynamic">@color/m3_ref_palette_dynamic_tertiary40</color>
+    <color name="md_theme_onTertiary_dynamic">@color/m3_ref_palette_dynamic_tertiary100</color>
+    <color name="md_theme_tertiaryContainer_dynamic">@color/m3_ref_palette_dynamic_tertiary90</color>
+    <color name="md_theme_onTertiaryContainer_dynamic">@color/m3_ref_palette_dynamic_tertiary10</color>
+    <color name="md_theme_error_dynamic">@color/m3_sys_color_light_error</color>
+    <color name="md_theme_onError_dynamic">@color/m3_sys_color_light_on_error</color>
+    <color name="md_theme_errorContainer_dynamic">@color/m3_sys_color_light_error_container</color>
+    <color name="md_theme_onErrorContainer_dynamic">@color/m3_sys_color_light_on_error_container</color>
+    <color name="md_theme_background_dynamic">@color/m3_sys_color_light_background</color>
+    <color name="md_theme_onBackground_dynamic">@color/m3_sys_color_light_on_background</color>
+    <color name="md_theme_surface_dynamic">@color/m3_sys_color_light_surface</color>
+    <color name="md_theme_onSurface_dynamic">@color/m3_ref_palette_dynamic_neutral10</color>
+    <color name="md_theme_surfaceVariant_dynamic">@color/m3_sys_color_light_surface_variant</color>
+    <color name="md_theme_onSurfaceVariant_dynamic">@color/m3_ref_palette_dynamic_neutral_variant30</color>
+    <color name="md_theme_outline_dynamic">@color/m3_ref_palette_dynamic_neutral_variant50</color>
+    <color name="md_theme_outlineVariant_dynamic">@color/m3_ref_palette_dynamic_neutral_variant80</color>
+    <color name="md_theme_scrim_dynamic">@color/m3_ref_palette_dynamic_neutral0</color>
+    <color name="md_theme_inverseSurface_dynamic">@color/m3_ref_palette_dynamic_neutral20</color>
+    <color name="md_theme_inverseOnSurface_dynamic">@color/m3_ref_palette_dynamic_neutral95</color>
+    <color name="md_theme_inversePrimary_dynamic">@color/m3_ref_palette_dynamic_primary80</color>
+    <color name="md_theme_primaryFixed_dynamic">@color/m3_ref_palette_dynamic_primary90</color>
+    <color name="md_theme_onPrimaryFixed_dynamic">@color/m3_ref_palette_dynamic_primary10</color>
+    <color name="md_theme_primaryFixedDim_dynamic">@color/m3_ref_palette_dynamic_primary80</color>
+    <color name="md_theme_onPrimaryFixedVariant_dynamic">@color/m3_ref_palette_dynamic_primary30</color>
+    <color name="md_theme_secondaryFixed_dynamic">@color/m3_ref_palette_dynamic_secondary90</color>
+    <color name="md_theme_onSecondaryFixed_dynamic">@color/m3_ref_palette_dynamic_secondary10</color>
+    <color name="md_theme_secondaryFixedDim_dynamic">@color/m3_ref_palette_dynamic_secondary80</color>
+    <color name="md_theme_onSecondaryFixedVariant_dynamic">@color/m3_ref_palette_dynamic_secondary30</color>
+    <color name="md_theme_tertiaryFixed_dynamic">@color/m3_ref_palette_dynamic_tertiary90</color>
+    <color name="md_theme_onTertiaryFixed_dynamic">@color/m3_ref_palette_dynamic_tertiary10</color>
+    <color name="md_theme_tertiaryFixedDim_dynamic">@color/m3_ref_palette_dynamic_tertiary80</color>
+    <color name="md_theme_onTertiaryFixedVariant_dynamic">@color/m3_ref_palette_dynamic_tertiary30</color>
+    <color name="md_theme_surfaceDim_dynamic">@color/m3_ref_palette_dynamic_neutral_variant87</color>
+    <color name="md_theme_surfaceBright_dynamic">@color/m3_ref_palette_dynamic_neutral_variant98</color>
+    <color name="md_theme_surfaceContainerLowest_dynamic">@color/m3_ref_palette_dynamic_neutral100</color>
+    <color name="md_theme_surfaceContainerLow_dynamic">@color/m3_ref_palette_dynamic_neutral98</color>
+    <color name="md_theme_surfaceContainer_dynamic">@color/m3_ref_palette_dynamic_neutral94</color>
+    <color name="md_theme_surfaceContainerHigh_dynamic">@color/m3_ref_palette_dynamic_neutral92</color>
+    <color name="md_theme_surfaceContainerHighest_dynamic">@color/m3_ref_palette_dynamic_neutral90</color>
+
+    <color name="app_icon_background">@color/md_theme_primary_dynamic</color>
+    <color name="menu_icons">@color/md_theme_primary_dynamic</color>
+</resources>
