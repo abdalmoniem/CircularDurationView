@@ -11,7 +11,7 @@ plugins {
 
 val packageName = "com.hifnawy.circulardurationview"
 val githubProperties = Properties()
-githubProperties.load(FileInputStream(rootProject.file("github.properties")))
+val githubPropertiesFile = rootProject.file("github.properties")
 
 android {
     namespace = packageName
@@ -79,15 +79,23 @@ publishing {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/abdalmoniem/CircularDurationView")
 
-            credentials {
-                val usr = githubProperties["gpr.usr"] as? String
-                val key = githubProperties["gpr.key"] as? String
+            if (githubPropertiesFile.exists()) {
+                githubProperties.load(FileInputStream(githubPropertiesFile))
 
-                if (usr == null && key == null) throw GradleException("gpr.usr and gpr.key are not set in the github.properties file")
+                credentials {
+                    val usr = githubProperties["gpr.usr"] as? String
+                    val key = githubProperties["gpr.key"] as? String
 
-                username = usr
-                password = key
+                    if (usr == null && key == null) throw GradleException("gpr.usr and gpr.key are not set in the github.properties file")
+
+                    username = usr
+                    password = key
+                }
             }
         }
     }
+}
+
+tasks.named("publishMavenPublicationToMavenLocal").configure {
+    dependsOn(tasks.named("bundleReleaseAar"))
 }
