@@ -10,3 +10,5 @@ local.properties
 github.properties
 app/build
 app/release
+
+**/*~

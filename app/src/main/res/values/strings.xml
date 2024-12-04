@@ -18,6 +18,7 @@
     <string name="progress_indicator_hours_pref">Hours</string>
     <string name="progress_indicator_minutes_pref">Minutes</string>
     <string name="progress_indicator_seconds_pref">Seconds</string>
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="infinite">INFINITE</string>
 </resources>

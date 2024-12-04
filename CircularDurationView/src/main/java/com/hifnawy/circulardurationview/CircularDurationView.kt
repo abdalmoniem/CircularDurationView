@@ -5,12 +5,16 @@ import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.widget.FrameLayout
 import androidx.core.content.res.ResourcesCompat
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.R.attr.colorPrimary
@@ -21,13 +25,21 @@ import com.google.android.material.R.attr.colorTertiary
 import com.google.android.material.R.attr.colorTertiaryContainer
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
 
 /**
  * A custom view that displays a duration in a circular format.
@@ -58,6 +70,13 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      */
     private val Int.dp: Int
         get() = (this * Resources.getSystem().displayMetrics.density).roundToInt()
+
+    /**
+     * The attach state change listener for the view.
+     *
+     * @return [AttachStateChangeListener] The attach state change listener for the view.
+     */
+    private val mAttachStateChangeListener by lazy { AttachStateChangeListener() }
 
     /**
      * The progress indicator for the hours.
@@ -130,6 +149,20 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     private var mTextFontFamily = 0
 
     /**
+     * Gets or sets whether the text should be displayed.
+     *
+     * @return [Boolean] Whether the text should be displayed.
+     */
+    private var mShowSubText = false
+
+    /**
+     * Gets or sets the padding of the sub text.
+     *
+     * @return [Int] The padding of the sub text.
+     */
+    private var mSubTextPadding = 5.dp
+
+    /**
      * Gets or sets the typeface of the text.
      *
      * @return [Typeface] The typeface of the text.
@@ -191,6 +224,33 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      * @return [Boolean] Whether the indicators should be animated.
      */
     private var mIsAnimated = true
+
+    /**
+     * Gets or sets the delay between each animation.
+     *
+     * @return [Int] The delay between each animation.
+     */
+    private var mStaggeredInfiniteAnimationDelay = 50
+
+    /**
+     * The lifecycle scope of the view.
+     *
+     * @return [LifecycleCoroutineScope] The lifecycle scope of the view.
+     */
+    private var mLifecycleScope: LifecycleCoroutineScope? = null
+
+    /**
+     * The job that is used to stagger the animation of the indicators when the [progress] is [Duration.INFINITE].
+     *
+     * This job is used to create a staggered animation effect when the indicators are updated. The job
+     * is launched when the indicators are updated and it is responsible for updating the progress of each
+     * indicator in sequence with a delay between each update.
+     *
+     * @return [Job] The job that is used to stagger the animation of the indicators.
+     *
+     * @see isInfinite
+     */
+    private var mStaggerAnimationJob: Job? = null
 
     /**
      * Gets or sets the maximum value of the hours indicator.
@@ -326,6 +386,13 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     private var mSecondsIndicatorTrackGapSize = -1
 
     /**
+     * Gets or sets the duration of the progress.
+     *
+     * @return [Duration] The duration of the progress.
+     */
+    private var mProgress: Duration = 0.seconds
+
+    /**
      * Gets or sets the text displayed on the view.
      *
      * This property defines the text that will be displayed on the view. It is used to
@@ -337,8 +404,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mText
         set(value) {
             mText = value
+
             invalidate()
-            requestLayout()
         }
 
     /**
@@ -353,8 +420,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mTextColor
         set(value) {
             mTextColor = value
+
             invalidate()
-            requestLayout()
         }
 
     /**
@@ -369,8 +436,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mTextStyle
         set(value) {
             mTextStyle = value
+
             invalidate()
-            requestLayout()
         }
 
     /**
@@ -385,8 +452,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mTextAlign
         set(value) {
             mTextAlign = value
+
             invalidate()
-            requestLayout()
         }
 
     /**
@@ -401,8 +468,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mTextPadding
         set(value) {
             mTextPadding = value
+
             invalidate()
-            requestLayout()
         }
 
     /**
@@ -417,8 +484,40 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mTextFontFamily
         set(value) {
             mTextFontFamily = value
+
             invalidate()
-            requestLayout()
+        }
+
+    /**
+     * Gets or sets whether to show the sub text.
+     *
+     * This property defines whether to show the sub text. It is used to configure
+     * whether to show the sub text when displayed.
+     *
+     * @return [Boolean] Whether to show the sub text.
+     */
+    var showSubText
+        get() = mShowSubText
+        set(value) {
+            mShowSubText = value
+
+            invalidate()
+        }
+
+    /**
+     * Gets or sets the padding of the sub text.
+     *
+     * This property defines the padding of the sub text. It is used to configure
+     * the padding of the sub text when displayed.
+     *
+     * @return [Int] The padding of the sub text.
+     */
+    var subTextPadding
+        get() = mSubTextPadding
+        set(value) {
+            mSubTextPadding = value
+
+            invalidate()
         }
 
     /**
@@ -566,6 +665,22 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         }
 
     /**
+     * Gets or sets the delay between the animation of the indicators.
+     *
+     * The delay between the animation of the indicators. This property is used to configure
+     * the visual appearance of the indicators.
+     *
+     * The default value of this property is 500ms.
+     *
+     * @return [Int] The delay between the animation of the indicators.
+     */
+    var staggeredInfiniteAnimationDelay
+        get() = mStaggeredInfiniteAnimationDelay.milliseconds
+        set(value) {
+            mStaggeredInfiniteAnimationDelay = value.toInt(DurationUnit.MILLISECONDS)
+        }
+
+    /**
      * Gets or sets whether the indicators should be animated.
      *
      * Whether the indicators should be animated. This property is used to configure
@@ -587,7 +702,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      * The maximum value of the hours indicator. This property is used to configure
      * the visual appearance of the hours indicator.
      *
-     * The default value of this property is 12.
+     * The default value of this property is 24.
      *
      * @return [Int] The maximum value of the hours indicator.
      */
@@ -615,6 +730,9 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mHoursIndicatorProgress
         set(value) {
             mHoursIndicatorProgress = value
+
+            val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds }
+            mProgress = value.hours + minutesIndicatorProgress.minutes + secondsIndicatorProgress.seconds + nanos.nanoseconds
 
             invalidate()
             requestLayout()
@@ -746,6 +864,9 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         set(value) {
             mMinutesIndicatorProgress = value
 
+            val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds }
+            mProgress = hoursIndicatorProgress.hours + value.minutes + secondsIndicatorProgress.seconds + nanos.nanoseconds
+
             invalidate()
             requestLayout()
         }
@@ -838,6 +959,9 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         get() = mSecondsIndicatorProgress
         set(value) {
             mSecondsIndicatorProgress = value
+
+            val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds }
+            mProgress = hoursIndicatorProgress.hours + minutesIndicatorProgress.minutes + value.seconds + nanos.nanoseconds
 
             invalidate()
             requestLayout()
@@ -951,30 +1075,68 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      * @return [Duration] the progress of the view.
      */
     var progress
-        get() = (hoursIndicatorProgress.toLong() * 3600 + minutesIndicatorProgress.toLong() * 60 + secondsIndicatorProgress.toLong()).seconds
+        get() = mProgress
         set(value) {
-            // stagger indeterminate animations
-            if (value.isInfinite()) findViewTreeLifecycleOwner()?.lifecycleScope?.launch {
-                mHoursIndicator.isIndeterminate = true
-                delay(300)
-                mMinutesIndicator.isIndeterminate = true
-                delay(300)
-                mSecondsIndicator.isIndeterminate = true
-            } else {
-                value.toComponents { hours, minutes, seconds, _ ->
-                    mHoursIndicator.isIndeterminate = false
-                    mMinutesIndicator.isIndeterminate = false
-                    mSecondsIndicator.isIndeterminate = false
+            mProgress = value
 
-                    if (hours == 0L) hoursIndicatorMax = 24
-                    hoursIndicatorProgress = hours.toInt()
-                    minutesIndicatorProgress = minutes
-                    secondsIndicatorProgress = seconds
-                }
+            if (value.isInfinite()) {
+                isInfinite = true
+
+                return
+            }
+
+            isInfinite = false
+
+            value.toComponents { hours, minutes, seconds, nanoseconds ->
+                mHoursIndicator.isIndeterminate = false
+                mMinutesIndicator.isIndeterminate = false
+                mSecondsIndicator.isIndeterminate = false
+
+                if (hours == 0L) hoursIndicatorMax = 24
+                hoursIndicatorProgress = hours.toInt()
+                minutesIndicatorProgress = minutes
+                secondsIndicatorProgress = seconds
             }
 
             invalidate()
             requestLayout()
+        }
+
+    /**
+     * Gets or sets whether the view is in an indeterminate state.
+     *
+     * If the view is in an indeterminate state, the indicators will be animated in an indeterminate
+     * manner.
+     *
+     * @return [Boolean] `true` if the view is in an indeterminate state, `false` otherwise.
+     */
+    var isInfinite
+        get() = mProgress.isInfinite()
+        set(value) {
+            val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds }
+            mProgress = when {
+                value -> Duration.INFINITE
+                else  -> hoursIndicatorProgress.hours + minutesIndicatorProgress.minutes + secondsIndicatorProgress.seconds + nanos.nanoseconds
+            }
+
+            mStaggerAnimationJob?.cancel()
+
+            Log.d(this@CircularDurationView::class.simpleName, "isInfinite: $value, staggering...")
+
+            // stagger indeterminate animations
+            if (value) mStaggerAnimationJob = mLifecycleScope?.launch {
+                mHoursIndicator.isIndeterminate = true
+                delay(mStaggeredInfiniteAnimationDelay.milliseconds)
+                mMinutesIndicator.isIndeterminate = true
+                delay(mStaggeredInfiniteAnimationDelay.milliseconds)
+                mSecondsIndicator.isIndeterminate = true
+            } else {
+                mHoursIndicator.isIndeterminate = false
+                mMinutesIndicator.isIndeterminate = false
+                mSecondsIndicator.isIndeterminate = false
+            }
+
+            invalidate()
         }
 
     /**
@@ -984,6 +1146,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      * and applying them to the view.
      */
     init {
+        addOnAttachStateChangeListener(mAttachStateChangeListener)
+
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.CircularDurationView, defStyleAttr, 0)
         mText = attributes.getString(R.styleable.CircularDurationView_text) ?: ""
         mTextColor = attributes.getColor(R.styleable.CircularDurationView_textColor, textColor)
@@ -1002,6 +1166,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             else -> mTypeFace = ResourcesCompat.getFont(context, mTextFontFamily) ?: Typeface.DEFAULT
         }
         mTypeFace = Typeface.create(mTypeFace, mTextStyle)
+        mShowSubText = attributes.getBoolean(R.styleable.CircularDurationView_showSubText, showSubText)
+        mSubTextPadding = attributes.getDimension(R.styleable.CircularDurationView_subTextPadding, subTextPadding.toFloat()).roundToInt()
 
         mIndicatorSize = attributes.getDimension(R.styleable.CircularDurationView_indicatorSize, indicatorSize.toFloat()).roundToInt()
         mIndicatorsGapSize =
@@ -1016,6 +1182,11 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         mIndicatorsTrackGapSize =
                 attributes.getDimension(R.styleable.CircularDurationView_indicatorsTrackGapSize, indicatorsTrackGapSize.toFloat()).roundToInt()
         mIsAnimated = attributes.getBoolean(R.styleable.CircularDurationView_animated, isAnimated)
+        mStaggeredInfiniteAnimationDelay =
+                attributes.getInt(
+                        R.styleable.CircularDurationView_staggeredInfiniteAnimationDelay,
+                        staggeredInfiniteAnimationDelay.toInt(DurationUnit.MILLISECONDS)
+                )
 
         mHoursIndicatorMax = attributes.getInteger(R.styleable.CircularDurationView_hoursIndicatorMax, hoursIndicatorMax)
         mHoursIndicatorProgress = attributes.getInteger(R.styleable.CircularDurationView_hoursIndicatorProgress, hoursIndicatorProgress)
@@ -1058,6 +1229,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
                     .roundToInt()
         attributes.recycle()
 
+        mProgress = hoursIndicatorProgress.hours + minutesIndicatorProgress.minutes + secondsIndicatorProgress.seconds
+
         mHoursIndicator = CircularProgressIndicator(context)
         mMinutesIndicator = CircularProgressIndicator(context)
         mSecondsIndicator = CircularProgressIndicator(context)
@@ -1090,12 +1263,12 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
 
         if (mIndicatorSize == -1) mIndicatorSize = size
 
-        updateIndicators()
-
         val viewWidth = mIndicatorSize + paddingStart + paddingEnd
         val viewHeight = mIndicatorSize + paddingTop + paddingBottom
 
         setMeasuredDimension(viewWidth, viewHeight)
+
+        updateIndicators()
     }
 
     /**
@@ -1117,6 +1290,20 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         if (changed) updateIndicators()
     }
 
+    private val mRectPaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.STROKE
+        strokeWidth = 6f
+        color = mTextColor
+    }
+
+    private val mPointPaint = Paint().apply {
+        isAntiAlias = true
+        style = Paint.Style.FILL
+        color = Color.RED
+        strokeWidth = 6f
+    }
+
     /**
      * Dispatches drawing operations to the view's child views.
      *
@@ -1135,24 +1322,98 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     override fun dispatchDraw(canvas: Canvas) {
         super.dispatchDraw(canvas)
 
-        val textWidth = mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2
-        val text = mText.takeIf { it.isNotEmpty() } ?: progress.toFormattedTime()
+        val text = mText.takeIf { it.isNotEmpty() } ?: mProgress.toFormattedTime()
+        val availableTextWidth = mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2f
         mTextPaint.apply {
             color = mTextColor
             textAlign = mTextAlign
-            textSize = textWidth * 0.5f
+            textSize = availableTextWidth * 0.5f
             typeface = mTypeFace
         }
 
-        var measuredWidth = mTextPaint.measureText(text)
-        while (measuredWidth + mTextPadding > textWidth) {
+        var textWidth = mTextPaint.measureText(text)
+        while (textWidth + (mTextPadding * 2f) > availableTextWidth) {
             mTextPaint.textSize -= 1f
-            measuredWidth = mTextPaint.measureText(text)
+            textWidth = mTextPaint.measureText(text)
+        }
+        val textHeight = mTextPaint.fontMetrics.descent + mTextPaint.fontMetrics.ascent
+
+        val x = width * 0.5f
+        val y = height * 0.5f - textHeight * 0.5f
+        canvas.drawText(text, x, y, mTextPaint)
+
+        if (mProgress.isInfinite() || !mShowSubText) return
+
+        val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds / 1_000_000 }
+        val subText = String.format(Locale.ENGLISH, ".%03d", nanos % 1_000)
+        val subTextWidth = mTextPaint.measureText(subText)
+        val subTextHeight = mTextPaint.fontMetrics.descent + mTextPaint.fontMetrics.ascent
+        var subTextX = x + (textWidth * 0.5f) - (subTextWidth * 0.5f) - (mSecondsIndicatorTrackThickness * 0.5f) - mTextPadding
+        val subTextY = y - subTextHeight + mSubTextPadding
+        val secondsIndicatorRadius = mSecondsIndicator.indicatorSize * 0.5f - mSecondsIndicatorTrackThickness
+
+        val textBounds = Rect()
+        mTextPaint.getTextBounds(subText, 0, subText.length, textBounds)
+        var left = subTextX - textBounds.width() * 0.5f
+        var top = subTextY + textBounds.top
+        var right = subTextX + textBounds.width() * 0.5f
+        var bottom = subTextY + textBounds.bottom
+        var rect = RectF(left, top, right, bottom)
+
+        while (isTextBoundsOutsideRadius(rect, x, y + textHeight * 0.5f, secondsIndicatorRadius)) {
+            mTextPaint.textSize -= 0.1f
+            subTextX -= 0.1f
+
+            mTextPaint.getTextBounds(subText, 0, subText.length, textBounds)
+            left = subTextX - textBounds.width() * 0.5f
+            top = subTextY + textBounds.top
+            right = subTextX + textBounds.width() * 0.5f
+            bottom = subTextY + textBounds.bottom
+            rect = RectF(left, top, right, bottom)
         }
 
-        val x = width / 2f
-        val y = height / 2f - (mTextPaint.fontMetrics.descent + mTextPaint.fontMetrics.ascent) / 2
-        canvas.drawText(text, x, y, mTextPaint)
+        canvas.drawText(subText, subTextX, subTextY, mTextPaint)
+    }
+
+    /**
+     * Checks if the text bounds are outside the specified circle radius.
+     * Loops through all possible angles and checks if any cartesian point of the circle is inside the text bounds.
+     *
+     * @param textBounds The bounds of the text.
+     * @param circleX The x coordinate of the center of the circle.
+     * @param circleY The y coordinate of the center of the circle.
+     * @param radius The radius of the circle.
+     *
+     * @return [Boolean] `true` if the text bounds are outside the circle, `false` otherwise.
+     */
+    private fun isTextBoundsOutsideRadius(textBounds: RectF, circleX: Float, circleY: Float, radius: Float): Boolean {
+        (0..360).forEach { angle ->
+            val radians = Math.toRadians(angle.toDouble())
+            val x = circleX + radius * cos(radians).toFloat()
+            val y = circleY + radius * sin(radians).toFloat()
+
+            if (x <= textBounds.right && x >= textBounds.left && y >= textBounds.top && y <= textBounds.bottom) return true
+        }
+
+        return false
+    }
+
+    /**
+     * TODO: Fix this
+     *
+     * This method seems to work incorrectly even though the method body works perfectly in [dispatchDraw]
+     * the issue is that it returns a RectF with a width double the actual text width
+     */
+    private fun getTextBounds(textStr: String, textX: Float, textY: Float, textPaint: Paint): RectF {
+        val textBounds = Rect()
+        textPaint.getTextBounds(textStr, 0, textStr.length, textBounds)
+
+        val left = textX - textBounds.width() * 0.2f
+        val top = textY + textBounds.top
+        val right = textX + textBounds.width() * 0.5f
+        val bottom = textY + textBounds.bottom
+
+        return RectF(left, top, right, bottom)
     }
 
     /**
@@ -1166,7 +1427,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         mHoursIndicator.apply {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
-            isIndeterminate = false
+            isIndeterminate = mProgress.isInfinite()
             max = mHoursIndicatorMax
             indicatorSize = mIndicatorSize
             trackColor = mHoursIndicatorTrackColor
@@ -1174,47 +1435,53 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             if (mHoursIndicatorTrackCornerRadius != -1) trackCornerRadius = mHoursIndicatorTrackCornerRadius
             if (mHoursIndicatorTrackGapSize != -1) indicatorTrackGapSize = mHoursIndicatorTrackGapSize
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
+            setIndicatorColor(mHoursIndicatorColor)
+
+            if (mProgress.isInfinite()) return@apply
             when {
                 isInEditMode -> progress = mHoursIndicatorProgress
                 else         -> setProgressCompat(mHoursIndicatorProgress, mIsAnimated)
             }
-            setIndicatorColor(mHoursIndicatorColor)
         }
 
         mMinutesIndicator.apply {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
             max = 59
-            isIndeterminate = false
+            isIndeterminate = mProgress.isInfinite()
             indicatorSize = mIndicatorSize - (mHoursIndicatorTrackThickness * 2) - mIndicatorsGapSize
             trackColor = mMinutesIndicatorTrackColor
             if (mMinutesIndicatorTrackThickness != -1) trackThickness = mMinutesIndicatorTrackThickness
             if (mMinutesIndicatorTrackCornerRadius != -1) trackCornerRadius = mMinutesIndicatorTrackCornerRadius
             if (mMinutesIndicatorTrackGapSize != -1) indicatorTrackGapSize = mMinutesIndicatorTrackGapSize
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
+            setIndicatorColor(mMinutesIndicatorColor)
+
+            if (mProgress.isInfinite()) return@apply
             when {
                 isInEditMode -> progress = mMinutesIndicatorProgress
                 else         -> setProgressCompat(mMinutesIndicatorProgress, mIsAnimated)
             }
-            setIndicatorColor(mMinutesIndicatorColor)
         }
 
         mSecondsIndicator.apply {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
             max = 59
-            isIndeterminate = false
+            isIndeterminate = mProgress.isInfinite()
             indicatorSize = mIndicatorSize - (mHoursIndicatorTrackThickness * 2) - (mMinutesIndicatorTrackThickness * 2) - (mIndicatorsGapSize * 2)
             trackColor = mSecondsIndicatorTrackColor
             if (mSecondsIndicatorTrackThickness != -1) trackThickness = mSecondsIndicatorTrackThickness
             if (mSecondsIndicatorTrackCornerRadius != -1) trackCornerRadius = mSecondsIndicatorTrackCornerRadius
             if (mSecondsIndicatorTrackGapSize != -1) indicatorTrackGapSize = mSecondsIndicatorTrackGapSize
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
+            setIndicatorColor(mSecondsIndicatorColor)
+
+            if (mProgress.isInfinite()) return@apply
             when {
                 isInEditMode -> progress = mSecondsIndicatorProgress
                 else         -> setProgressCompat(mSecondsIndicatorProgress, mIsAnimated)
             }
-            setIndicatorColor(mSecondsIndicatorColor)
         }
     }
 
@@ -1242,6 +1509,43 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
                     else -> String.format(Locale.ENGLISH, format, hours, minutes, seconds)
                 }
             }
+        }
+    }
+
+    /**
+     * A listener that is called when the view is attached to or detached from a window.
+     *
+     * This listener is used to attach the view to the lifecycle of the parent view.
+     *
+     * @author AbdAlMoniem AlHifnawy
+     */
+    private inner class AttachStateChangeListener : OnAttachStateChangeListener {
+
+        /**
+         * Called when the view is attached to a window.
+         *
+         * This method is called when the view is attached to a window, which means that the parent view
+         * has a LifecycleOwner that can be used to attach the view to the lifecycle.
+         *
+         * @param view The view that is attached to a window.
+         */
+        override fun onViewAttachedToWindow(view: View) {
+            view.findViewTreeLifecycleOwner()?.let { owner ->
+                mLifecycleScope = owner.lifecycleScope
+                Log.d(this@CircularDurationView::class.simpleName, "LifecycleOwner attached: ${owner::class.simpleName}@${owner.hashCode()}")
+            } ?: Log.e(this@CircularDurationView::class.simpleName, "LifecycleOwner is null, ensure the parent has a LifecycleOwner.")
+        }
+
+        /**
+         * Called when the view is detached from a window.
+         *
+         * This method is called when the view is detached from a window, which means that the parent view
+         * no longer has a LifecycleOwner to attach the view to.
+         *
+         * @param view The view that is detached from a window.
+         */
+        override fun onViewDetachedFromWindow(view: View) {
+            mLifecycleScope = null
         }
     }
 }

@@ -116,8 +116,8 @@ android {
         compileSdk = 35
         //noinspection EditedTargetSdkVersion
         targetSdk = 35
-        versionCode = 31
-        versionName = "1.0.0"
+        versionCode = 32
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -232,7 +232,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.circulardurationview)
+    implementation(project(":CircularDurationView"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

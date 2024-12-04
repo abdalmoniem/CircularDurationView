@@ -8,6 +8,7 @@
         <attr name="indicatorsTrackGapSize" format="dimension" />
         <attr name="indicatorsTrackThickness" format="dimension" />
         <attr name="indicatorsTrackCornerRadius" format="dimension" />
+        <attr name="staggeredInfiniteAnimationDelay" format="integer" />
         <attr name="animated" default="true" format="boolean" />
 
         <attr name="hoursIndicatorMax" default="24" format="integer" />
@@ -46,5 +47,7 @@
         </attr>
         <attr name="textPadding" format="dimension" />
         <attr name="textFontFamily" format="reference" />
+        <attr name="showSubText" format="boolean" />
+        <attr name="subTextPadding" format="dimension" />
     </declare-styleable>
 </resources>

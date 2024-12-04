@@ -19,7 +19,7 @@ android {
 
     defaultConfig {
         minSdk = 24
-        version = "1.0.0"
+        version = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -87,11 +87,15 @@ publishing {
                     val usr = githubProperties["gpr.usr"] as? String
                     val key = githubProperties["gpr.key"] as? String
 
-                    if (usr == null && key == null) throw GradleException("gpr.usr and gpr.key are not set in the github.properties file")
+                    if (usr == null && key == null) {
+                        error("gpr.usr and gpr.key are not set in the github.properties file")
+                    }
 
                     username = usr
                     password = key
                 }
+            } else {
+                error("github.properties file not found")
             }
         }
     }

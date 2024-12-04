@@ -8,7 +8,6 @@ import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.util.Log
 import android.util.Rational
 import android.view.HapticFeedbackConstants
@@ -18,6 +17,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.slider.Slider
 import com.hifnawy.circulardurationview.Application
@@ -29,10 +29,17 @@ import com.hifnawy.circulardurationview.demo.R
 import com.hifnawy.circulardurationview.demo.databinding.ActivityMainBinding
 import com.hifnawy.circulardurationview.view.ActivityExtensionFunctions.setActivityTheme
 import com.hifnawy.circulardurationview.view.ViewExtensionFunctions.onSizeChange
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.INFINITE
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : AppCompatActivity(), SharedPrefsObserver {
@@ -68,12 +75,11 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
     /**
      * The count down timer instance used to count down the duration of the timer.
      *
-     * This field is used to store the instance of [CountDownTimer] that is used to count down the duration of the timer.
-     * It is initialized in [onCreate] and canceled in [onDestroy].
+     * This field is used to store the instance of [Job] that is used to count down the duration of the timer.
      *
-     * @see CountDownTimer
+     * @return [Job] the count down timer instance used to count down the duration of the timer.
      */
-    private var countDownTimer: CountDownTimer? = null
+    private var countDownTimerJob: Job? = null
 
     /**
      * The flag indicating whether the count down timer is currently running.
@@ -155,6 +161,10 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
         window.exitTransition = null
 
         with(binding) {
+            settingsCardLayout.children.forEach { childView ->
+                childView.isVisible = false
+            }
+
             pipParamsBuilder?.run {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@run
 
@@ -228,28 +238,60 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
 
                 if (!isCountDownRunning) {
                     isCountDownRunning = true
-                    countDownTimer = object : CountDownTimer(progressIndicator.progress.inWholeMilliseconds, 1.seconds.inWholeMilliseconds) {
-                        override fun onTick(millis: Long) {
-                            progressIndicator.progress = millis.milliseconds
-                        }
 
-                        override fun onFinish() {
-                            isCountDownRunning = false
-                            countDownTimer?.cancel()
-                            countDownTimer = null
+                    countDownTimerJob = startCountdown(progressIndicator.progress, 50.milliseconds, { remaining ->
+                        progressIndicator.progress = remaining
+                    }) {
+                        isCountDownRunning = false
+                        countDownTimerJob?.cancel()
+                        countDownTimerJob = null
 
-                            changeProgressIndicatorControls(true)
+                        changeProgressIndicatorControls(true)
+                        progressIndicator.showSubText = false
+                        infiniteToggleButton.isEnabled = !isCountDownRunning
+                        toggleButton.text = when {
+                            isCountDownRunning -> getString(R.string.stop)
+                            else               -> getString(R.string.start)
                         }
                     }
-
-                    countDownTimer?.start()
+                    countDownTimerJob?.start()
                 } else {
                     isCountDownRunning = false
-                    countDownTimer?.cancel()
-                    countDownTimer = null
+                    countDownTimerJob?.cancel()
+                    countDownTimerJob = null
                 }
 
                 changeProgressIndicatorControls(!isCountDownRunning)
+                progressIndicator.showSubText = isCountDownRunning
+                infiniteToggleButton.isEnabled = !isCountDownRunning
+                toggleButton.text = when {
+                    isCountDownRunning -> getString(R.string.stop)
+                    else               -> getString(R.string.start)
+                }
+            }
+
+            infiniteToggleButton.setOnClickListener { button ->
+                button.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+
+                isCountDownRunning = !isCountDownRunning
+
+                if (isCountDownRunning) progressIndicator.progress = INFINITE
+                changeProgressIndicatorControls(!isCountDownRunning)
+
+                toggleButton.isEnabled = !isCountDownRunning
+                infiniteToggleButton.text = when {
+                    isCountDownRunning -> getString(R.string.stop)
+                    else               -> getString(R.string.infinite)
+                }
+
+                progressIndicator.showSubText = false
+            }
+
+            lifecycleScope.launch {
+                settingsCardLayout.children.forEach { childView ->
+                    childView.isVisible = true
+                    delay(150.milliseconds)
+                }
             }
         }
     }
@@ -481,10 +523,6 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
      * @param isEnabled [Boolean] `true` if the progress indicator controls should be enabled, `false` otherwise.
      */
     private fun changeProgressIndicatorControls(isEnabled: Boolean) = with(binding) {
-        toggleButton.text = when {
-            isEnabled -> getString(R.string.start)
-            else      -> getString(R.string.stop)
-        }
         progressIndicatorControlsCard.isEnabled = isEnabled
         progressIndicatorControlsLayout.children.forEach { childView ->
             childView.isEnabled = isEnabled
@@ -509,6 +547,19 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
                 setPictureInPictureParams(build())
             }
         }
+    }
+
+    private fun startCountdown(
+            duration: Duration,
+            interval: Duration = 50.milliseconds,
+            onTick: (remaining: Duration) -> Unit,
+            onFinish: () -> Unit
+    ): Job = lifecycleScope.launch {
+        generateSequence(duration) { it - interval }.takeWhile { it >= Duration.ZERO }.forEach { remaining ->
+            onTick(remaining)
+            delay(interval.inWholeMilliseconds)
+        }
+        onFinish()
     }
 
     /**
