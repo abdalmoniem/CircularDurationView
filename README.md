@@ -19,61 +19,88 @@ A custom view for Android that displays a duration in a circular fashion.
 
 ## Attributes
 
-| Attribute                         | Type      | Description                                                | Default Value |
-|-----------------------------------|-----------|------------------------------------------------------------|---------------|
-| indicatorSize                     | dimension | The size of the progress indicators.                       | undefined     |
-| indicatorsGapSize                 | dimension | The gap size between the progress indicators.              | 5dp           |
-| indicatorsColor                   | color     | The color of the progress indicators.                      | colorPrimary  |
-| indicatorsTrackColor              | color     | The color of the track of the progress indicators.         | colorPrimary  |
-| indicatorsTrackGapSize            | dimension | The gap size between the track of the progress indicators. | 10dp          |
-| indicatorsTrackThickness          | dimension | The thickness of the track of the progress indicators.     | 15dp          |
-| indicatorsTrackCornerRadius       | dimension | The corner radius of the track of the progress indicators. | 10dp          |
-| animated                          | boolean   | Whether the progress indicators are animated or not.       | true          |
-| hoursIndicatorMax                 | integer   | The maximum value of the hours indicator.                  | 24            |
-| hoursIndicatorProgress            | integer   | The progress of the hours indicator.                       | 0             |
-| hoursIndicatorColor               | color     | The color of the hours indicator.                          | colorPrimary  |
-| hoursIndicatorTrackColor          | color     | The color of the track of the hours indicator.             | colorPrimary  |
-| hoursIndicatorTrackGapSize        | dimension | The gap size between the track of the hours indicator.     | undefined     |
-| hoursIndicatorTrackThickness      | dimension | The thickness of the track of the hours indicator.         | undefined     |
-| hoursIndicatorTrackCornerRadius   | dimension | The corner radius of the track of the hours indicator.     | undefined     |
-| minutesIndicatorProgress          | integer   | The progress of the minutes indicator.                     | 0             |
-| minutesIndicatorColor             | color     | The color of the minutes indicator.                        | colorPrimary  |
-| minutesIndicatorTrackColor        | color     | The color of the track of the minutes indicator.           | colorPrimary  |
-| minutesIndicatorTrackGapSize      | dimension | The gap size between the track of the minutes indicator.   | undefined     |
-| minutesIndicatorTrackThickness    | dimension | The thickness of the track of the minutes indicator.       | undefined     |
-| minutesIndicatorTrackCornerRadius | dimension | The corner radius of the track of the minutes indicator.   | undefined     |
-| secondsIndicatorProgress          | integer   | The progress of the seconds indicator.                     | 0             |
-| secondsIndicatorColor             | color     | The color of the seconds indicator.                        | colorPrimary  |
-| secondsIndicatorTrackColor        | color     | The color of the track of the seconds indicator.           | colorPrimary  |
-| secondsIndicatorTrackGapSize      | dimension | The gap size between the track of the seconds indicator.   | undefined     |
-| secondsIndicatorTrackThickness    | dimension | The thickness of the track of the seconds indicator.       | undefined     |
-| secondsIndicatorTrackCornerRadius | dimension | The corner radius of the track of the seconds indicator.   | undefined     |
-| text                              | string    | The text to be displayed at the center of the view.        | undefined     |
-| textColor                         | color     | The color of the text.                                     | colorPrimary  |
-| textStyle                         | flags     | The style of the text.                                     | normal        |
-| textAlign                         | enum      | The alignment of the text.                                 | center        |
-| textPadding                       | dimension | The padding of the text.                                   | 0dp           |
-| textFontFamily                    | reference | The font family of the text.                               | undefined     |
+- [ ] Incomplete task
+- [x] Completed task
+
+| Attribute / Property              | Type      | Description                                                | Default Value             | in XML |
+|-----------------------------------|-----------|------------------------------------------------------------|---------------------------|--------|
+| indicatorSize                     | dimension | The size of the progress indicators.                       | undefined                 | yes    |
+| indicatorsGapSize                 | dimension | The gap size between the progress indicators.              | 5dp                       | yes    |
+| indicatorsColor                   | color     | The color of the progress indicators.                      | colorPrimary              | yes    |
+| indicatorsTrackColor              | color     | The color of the track of the progress indicators.         | colorPrimary              | yes    |
+| indicatorsTrackGapSize            | dimension | The gap size between the track of the progress indicators. | 10dp                      | yes    |
+| indicatorsTrackThickness          | dimension | The thickness of the track of the progress indicators.     | 15dp                      | yes    |
+| indicatorsTrackCornerRadius       | dimension | The corner radius of the track of the progress indicators. | 10dp                      | yes    |
+| animated                          | boolean   | Whether the progress indicators are animated or not.       | true                      | yes    |
+| hoursIndicatorMax                 | integer   | The maximum value of the hours indicator.                  | 24                        | yes    |
+| hoursIndicatorProgress            | integer   | The progress of the hours indicator.                       | 0                         | yes    |
+| hoursIndicatorColor               | color     | The color of the hours indicator.                          | colorPrimary              | yes    |
+| hoursIndicatorTrackColor          | color     | The color of the track of the hours indicator.             | colorPrimary              | yes    |
+| hoursIndicatorTrackGapSize        | dimension | The gap size between the track of the hours indicator.     | undefined                 | yes    |
+| hoursIndicatorTrackThickness      | dimension | The thickness of the track of the hours indicator.         | undefined                 | yes    |
+| hoursIndicatorTrackCornerRadius   | dimension | The corner radius of the track of the hours indicator.     | undefined                 | yes    |
+| minutesIndicatorProgress          | integer   | The progress of the minutes indicator.                     | 0                         | yes    |
+| minutesIndicatorColor             | color     | The color of the minutes indicator.                        | colorPrimary              | yes    |
+| minutesIndicatorTrackColor        | color     | The color of the track of the minutes indicator.           | colorPrimary              | yes    |
+| minutesIndicatorTrackGapSize      | dimension | The gap size between the track of the minutes indicator.   | undefined                 | yes    |
+| minutesIndicatorTrackThickness    | dimension | The thickness of the track of the minutes indicator.       | undefined                 | yes    |
+| minutesIndicatorTrackCornerRadius | dimension | The corner radius of the track of the minutes indicator.   | undefined                 | yes    |
+| secondsIndicatorProgress          | integer   | The progress of the seconds indicator.                     | 0                         | yes    |
+| secondsIndicatorColor             | color     | The color of the seconds indicator.                        | colorPrimary              | yes    |
+| secondsIndicatorTrackColor        | color     | The color of the track of the seconds indicator.           | colorPrimary              | yes    |
+| secondsIndicatorTrackGapSize      | dimension | The gap size between the track of the seconds indicator.   | undefined                 | yes    |
+| secondsIndicatorTrackThickness    | dimension | The thickness of the track of the seconds indicator.       | undefined                 | yes    |
+| secondsIndicatorTrackCornerRadius | dimension | The corner radius of the track of the seconds indicator.   | undefined                 | yes    |
+| text                              | string    | The text to be displayed at the center of the view.        | undefined                 | yes    |
+| progress                          | Duration  | The progress of the duration.                              | hours + minutes + seconds | **no** |
+| textColor                         | color     | The color of the text.                                     | colorPrimary              | yes    |
+| textStyle                         | flags     | The style of the text.                                     | normal                    | yes    |
+| textAlign                         | enum      | The alignment of the text.                                 | center                    | yes    |
+| textPadding                       | dimension | The padding of the text.                                   | 0dp                       | yes    |
+| textFontFamily                    | reference | The font family of the text.                               | undefined                 | yes    |
 
 ## Usage
 
-Add the following dependency to your build.gradle file:
+Add the following dependency to your module `build.gradle` file:
 
 ### Gradle
+
 ```gradle
 dependencies {
-    implementation 'com.hifnawy:circulardurationview:1.0.0'
+    implementation 'com.github.abdalmoniem:CircularDurationView:1.0.0'
 }
 ```
 
 ### Kotlin DSL
+
 ```kotlin
 dependencies {
-    implementation("com.hifnawy:circulardurationview:1.0.0")
+    implementation("com.github.abdalmoniem:CircularDurationView:1.0.0")
+}
+```
+
+### Using Version Catalog
+
+Add the following dependency to your module `libs.versions.toml` file:
+
+```toml
+[versions]
+circulardurationview = "1.0.0"
+
+[libraries]
+circulardurationview = { module = "com.github.abdalmoniem:CircularDurationView", version.ref = "circulardurationview" }
+```
+
+Add the following dependency to your module `build.gradle.kts` file:
+
+```kotlin
+dependencies {
+    implementation(libs.circulardurationview)
 }
 ```
 
 ### XML layout
+
 ```xml
 <com.hifnawy.circulardurationview.CircularDurationView
     android:id="@+id/progressIndicator"
@@ -108,6 +135,7 @@ dependencies {
 ```
 
 ### From Code
+
 ```kotlin
 val progressIndicator = findViewById<CircularDurationView>(R.id.progressIndicator)
 progressIndicator.hoursIndicatorProgress = 7

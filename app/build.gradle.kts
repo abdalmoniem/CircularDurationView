@@ -227,15 +227,12 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-
-    implementation(project(":CircularDurationView"))
-    // implementation("com.github.abdalmoniem:CircularDurationView:1.0.0")
+    implementation(libs.circulardurationview)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
