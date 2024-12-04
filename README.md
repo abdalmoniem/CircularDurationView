@@ -112,19 +112,36 @@ dependencies {
 
 ```xml
 
-<com.hifnawy.circulardurationview.CircularDurationView android:id="@+id/progressIndicator"
-    android:layout_width="wrap_content" android:layout_height="wrap_content" android:padding="20dp"
-    app:hoursIndicatorColor="?colorPrimary" app:hoursIndicatorMax="24" app:hoursIndicatorProgress="7"
-    app:hoursIndicatorTrackColor="?colorPrimaryContainer" app:indicatorSize="350dp"
-    app:indicatorsGapSize="5dp" app:indicatorsTrackCornerRadius="30dp" app:indicatorsTrackGapSize="10dp"
-    app:indicatorsTrackThickness="10dp" app:layout_constraintBottom_toTopOf="@+id/settingsCardTitle"
-    app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_weight="2"
-    app:minutesIndicatorColor="?colorSecondary" app:minutesIndicatorProgress="30"
-    app:minutesIndicatorTrackColor="?colorSecondaryContainer" app:secondsIndicatorColor="?colorTertiary"
-    app:secondsIndicatorProgress="40" app:secondsIndicatorTrackColor="?colorTertiaryContainer"
-    app:textAlign="center" app:textColor="?colorPrimary" app:textFontFamily="@font/manrope"
-    app:textPadding="5dp" app:textStyle="normal" />
+<com.hifnawy.circulardurationview.CircularDurationView
+    android:id="@+id/progressIndicator"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    app:hoursIndicatorColor="?colorPrimary"
+    app:hoursIndicatorMax="24"
+    app:hoursIndicatorProgress="7"
+    app:hoursIndicatorTrackColor="?colorPrimaryContainer"
+    app:indicatorSize="350dp"
+    app:indicatorsGapSize="5dp"
+    app:indicatorsTrackCornerRadius="30dp"
+    app:indicatorsTrackGapSize="10dp"
+    app:indicatorsTrackThickness="10dp"
+    app:layout_constraintBottom_toTopOf="@+id/settingsCardTitle"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_weight="2"
+    app:minutesIndicatorColor="?colorSecondary"
+    app:minutesIndicatorProgress="30"
+    app:minutesIndicatorTrackColor="?colorSecondaryContainer"
+    app:secondsIndicatorColor="?colorTertiary"
+    app:secondsIndicatorProgress="40"
+    app:secondsIndicatorTrackColor="?colorTertiaryContainer"
+    app:textAlign="center"
+    app:textColor="?colorPrimary"
+    app:textFontFamily="@font/manrope"
+    app:textPadding="5dp"
+    app:textStyle="normal" />
 ```
 
 ### From Code

@@ -88,14 +88,14 @@ publishing {
                     val key = githubProperties["gpr.key"] as? String
 
                     if (usr == null && key == null) {
-                        error("gpr.usr and gpr.key are not set in the github.properties file")
+                        project.logger.error("ERROR: gpr.usr and gpr.key are not set in the github.properties file")
                     }
 
                     username = usr
                     password = key
                 }
             } else {
-                error("github.properties file not found")
+                project.logger.error("ERROR: github.properties file not found")
             }
         }
     }
