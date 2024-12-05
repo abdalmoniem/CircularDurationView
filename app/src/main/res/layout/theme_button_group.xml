@@ -30,7 +30,8 @@
         android:insetRight="0dp"
         android:tooltipText="@string/app_theme_system_light"
         app:icon="@drawable/theme_system_light_icon"
-        app:iconSize="30dp" />
+        app:iconSize="30dp"
+        tools:ignore="DuplicateSpeakableTextCheck" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/appThemeSystemDarkButton"

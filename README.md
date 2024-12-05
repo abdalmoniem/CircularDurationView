@@ -114,8 +114,8 @@ dependencies {
 
 <com.hifnawy.circulardurationview.CircularDurationView
     android:id="@+id/progressIndicator"
-    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
     android:padding="20dp"
     app:hoursIndicatorColor="?colorPrimary"
     app:hoursIndicatorMax="24"

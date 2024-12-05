@@ -58,12 +58,12 @@
                 app:secondsIndicatorColor="?colorTertiary"
                 app:secondsIndicatorProgress="40"
                 app:secondsIndicatorTrackColor="?colorTertiaryContainer"
+                app:showSubText="false"
                 app:staggeredInfiniteAnimationDelay="70"
+                app:subTextPadding="5dp"
                 app:textAlign="center"
                 app:textColor="?colorPrimary"
                 app:textFontFamily="@font/manrope"
-                app:showSubText="false"
-                app:subTextPadding="5dp"
                 app:textPadding="10dp"
                 app:textStyle="normal" />
 
