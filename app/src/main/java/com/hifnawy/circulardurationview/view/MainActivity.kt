@@ -206,8 +206,6 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
                             setPictureInPictureParams(build())
                         }
                     }
-
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return@onSizeChange
                 }
             }
 

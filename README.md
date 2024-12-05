@@ -76,7 +76,7 @@ Add the following dependency to your module `build.gradle` file:
 
 ```gradle
 dependencies {
-    implementation 'com.github.abdalmoniem:CircularDurationView:1.0.0'
+    implementation 'com.github.abdalmoniem:CircularDurationView:1.1.1'
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("com.github.abdalmoniem:CircularDurationView:1.0.0")
+    implementation("com.github.abdalmoniem:CircularDurationView:1.1.1")
 }
 ```
 
@@ -94,7 +94,7 @@ Add the following dependency to your module `libs.versions.toml` file:
 
 ```toml
 [versions]
-circulardurationview = "1.0.0"
+circulardurationview = "1.1.1"
 
 [libraries]
 circulardurationview = { module = "com.github.abdalmoniem:CircularDurationView", version.ref = "circulardurationview" }

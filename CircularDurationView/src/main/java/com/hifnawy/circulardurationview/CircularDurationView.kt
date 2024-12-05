@@ -712,6 +712,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             mHoursIndicatorMax = value
             mHoursIndicator.max = value
 
+            if (isInfinite) return
+
             invalidate()
             requestLayout()
         }
@@ -1077,17 +1079,11 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     var progress
         get() = mProgress
         set(value) {
+            isInfinite = value.isInfinite()
+            if (isInfinite) return
             mProgress = value
 
-            if (value.isInfinite()) {
-                isInfinite = true
-
-                return
-            }
-
-            isInfinite = false
-
-            value.toComponents { hours, minutes, seconds, nanoseconds ->
+            value.toComponents { hours, minutes, seconds, _ ->
                 mHoursIndicator.isIndeterminate = false
                 mMinutesIndicator.isIndeterminate = false
                 mSecondsIndicator.isIndeterminate = false
@@ -1113,6 +1109,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     var isInfinite
         get() = mProgress.isInfinite()
         set(value) {
+            if (value && isInfinite) return
             val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds }
             mProgress = when {
                 value -> Duration.INFINITE
@@ -1120,8 +1117,6 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             }
 
             mStaggerAnimationJob?.cancel()
-
-            Log.d(this@CircularDurationView::class.simpleName, "isInfinite: $value, staggering...")
 
             // stagger indeterminate animations
             if (value) mStaggerAnimationJob = mLifecycleScope?.launch {
@@ -1162,7 +1157,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         mTextPadding = attributes.getDimension(R.styleable.CircularDurationView_textPadding, textPadding.toFloat()).roundToInt()
         mTextFontFamily = attributes.getResourceId(R.styleable.CircularDurationView_textFontFamily, textFontFamily)
         when (mTextFontFamily) {
-            0    -> Log.e(javaClass.simpleName, "Font resource not set or invalid")
+            0    -> Log.e(this@CircularDurationView::class.simpleName, "Font resource not set or invalid")
             else -> mTypeFace = ResourcesCompat.getFont(context, mTextFontFamily) ?: Typeface.DEFAULT
         }
         mTypeFace = Typeface.create(mTypeFace, mTextStyle)
@@ -1290,20 +1285,6 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         if (changed) updateIndicators()
     }
 
-    private val mRectPaint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.STROKE
-        strokeWidth = 6f
-        color = mTextColor
-    }
-
-    private val mPointPaint = Paint().apply {
-        isAntiAlias = true
-        style = Paint.Style.FILL
-        color = Color.RED
-        strokeWidth = 6f
-    }
-
     /**
      * Dispatches drawing operations to the view's child views.
      *
@@ -1342,7 +1323,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         val y = height * 0.5f - textHeight * 0.5f
         canvas.drawText(text, x, y, mTextPaint)
 
-        if (mProgress.isInfinite() || !mShowSubText) return
+        if (isInfinite || !mShowSubText) return
 
         val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds / 1_000_000 }
         val subText = String.format(Locale.ENGLISH, ".%03d", nanos % 1_000)
@@ -1427,7 +1408,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         mHoursIndicator.apply {
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
-            isIndeterminate = mProgress.isInfinite()
+            isIndeterminate = false
             max = mHoursIndicatorMax
             indicatorSize = mIndicatorSize
             trackColor = mHoursIndicatorTrackColor
@@ -1437,7 +1418,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
             setIndicatorColor(mHoursIndicatorColor)
 
-            if (mProgress.isInfinite()) return@apply
+            if (isInfinite) return@apply
             when {
                 isInEditMode -> progress = mHoursIndicatorProgress
                 else         -> setProgressCompat(mHoursIndicatorProgress, mIsAnimated)
@@ -1448,7 +1429,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
             max = 59
-            isIndeterminate = mProgress.isInfinite()
+            isIndeterminate = false
             indicatorSize = mIndicatorSize - (mHoursIndicatorTrackThickness * 2) - mIndicatorsGapSize
             trackColor = mMinutesIndicatorTrackColor
             if (mMinutesIndicatorTrackThickness != -1) trackThickness = mMinutesIndicatorTrackThickness
@@ -1457,7 +1438,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
             setIndicatorColor(mMinutesIndicatorColor)
 
-            if (mProgress.isInfinite()) return@apply
+            if (isInfinite) return@apply
             when {
                 isInEditMode -> progress = mMinutesIndicatorProgress
                 else         -> setProgressCompat(mMinutesIndicatorProgress, mIsAnimated)
@@ -1468,7 +1449,7 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER)
 
             max = 59
-            isIndeterminate = mProgress.isInfinite()
+            isIndeterminate = false
             indicatorSize = mIndicatorSize - (mHoursIndicatorTrackThickness * 2) - (mMinutesIndicatorTrackThickness * 2) - (mIndicatorsGapSize * 2)
             trackColor = mSecondsIndicatorTrackColor
             if (mSecondsIndicatorTrackThickness != -1) trackThickness = mSecondsIndicatorTrackThickness
@@ -1477,11 +1458,22 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
             showAnimationBehavior = CircularProgressIndicator.SHOW_OUTWARD
             setIndicatorColor(mSecondsIndicatorColor)
 
-            if (mProgress.isInfinite()) return@apply
+            if (isInfinite) return@apply
             when {
                 isInEditMode -> progress = mSecondsIndicatorProgress
                 else         -> setProgressCompat(mSecondsIndicatorProgress, mIsAnimated)
             }
+        }
+
+        if (mProgress.isFinite()) return
+
+        mStaggerAnimationJob?.cancel()
+        mStaggerAnimationJob = mLifecycleScope?.launch {
+            mHoursIndicator.isIndeterminate = true
+            delay(mStaggeredInfiniteAnimationDelay.milliseconds)
+            mMinutesIndicator.isIndeterminate = true
+            delay(mStaggeredInfiniteAnimationDelay.milliseconds)
+            mSecondsIndicator.isIndeterminate = true
         }
     }
 
@@ -1532,8 +1524,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         override fun onViewAttachedToWindow(view: View) {
             view.findViewTreeLifecycleOwner()?.let { owner ->
                 mLifecycleScope = owner.lifecycleScope
-                Log.d(this@CircularDurationView::class.simpleName, "LifecycleOwner attached: ${owner::class.simpleName}@${owner.hashCode()}")
-            } ?: Log.e(this@CircularDurationView::class.simpleName, "LifecycleOwner is null, ensure the parent has a LifecycleOwner.")
+                Log.d(this@CircularDurationView::class.simpleName,"LifecycleOwner attached: ${owner::class.simpleName}@${owner.hashCode()}")
+            } ?: Log.e(this@CircularDurationView::class.simpleName,"LifecycleOwner is null, ensure the parent has a LifecycleOwner.")
         }
 
         /**
