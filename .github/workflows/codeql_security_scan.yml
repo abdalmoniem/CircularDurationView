@@ -79,7 +79,7 @@ jobs:
         echo $apk
         echo APK_PATH=$debugApk >> $GITHUB_ENV
 
-    - name: Create Artifact ${{ env.ARTIFACT_NAME }}
+    - name: Create Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: build_artifacts
