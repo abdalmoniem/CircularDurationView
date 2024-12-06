@@ -9,12 +9,13 @@ on:
       - '[0-9]+.[0-9]+'
       - '[0-9]+'
 
-permissions: {}
+permissions: { }
 
 jobs:
   publish-release-on-tag:
     name: Publish Release On Tag
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout ${{ github.ref }}
         uses: actions/checkout@v4

@@ -7,12 +7,13 @@ on:
   schedule:
     - cron: '00 00 * * 5'
 
-permissions: {}
+permissions: { }
 
 jobs:
   build-release-variant:
     name: Build Release Variant
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -47,7 +48,7 @@ jobs:
           echo $releaseApk
           echo ARTIFACT_NAME=$(basename $releaseApk) >> $GITHUB_ENV
           echo ARTIFACT_PATH=$releaseApk >> $GITHUB_ENV
-          
+
       - name: Create Artifact ${{ env.ARTIFACT_NAME }}
         uses: actions/upload-artifact@v4
         with:
