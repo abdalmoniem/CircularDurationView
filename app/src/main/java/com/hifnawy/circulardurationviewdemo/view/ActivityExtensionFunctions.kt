@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.view
+package com.hifnawy.circulardurationviewdemo.view
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import com.google.android.material.color.DynamicColors
-import com.hifnawy.circulardurationview.demo.R
+import com.hifnawy.circulardurationviewdemo.R
 
 /**
  * Utility functions for working with [AppCompatActivity].

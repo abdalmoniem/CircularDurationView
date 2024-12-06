@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.datastore
+package com.hifnawy.circulardurationviewdemo.datastore
 
 import android.util.Log
 import kotlin.reflect.KClass

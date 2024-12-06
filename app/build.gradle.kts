@@ -13,7 +13,7 @@ import java.util.Properties
  * Android and is essential for intents, broadcasting, and other system
  * interactions.
  */
-private val packageName = "com.hifnawy.circulardurationview.demo"
+private val packageName = "com.hifnawy.circulardurationviewdemo"
 
 /**
  * A DateTimeFormatter for formatting the current date and time.
@@ -117,7 +117,7 @@ android {
         //noinspection EditedTargetSdkVersion
         targetSdk = 35
         versionCode = 33
-        versionName = "1.1.2"
+        versionName = "1.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

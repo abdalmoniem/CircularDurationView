@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.hifnawy.circulardurationview.view.MainActivity">
+    tools:context=".view.MainActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -37,7 +37,7 @@
                 android:id="@+id/progressIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="20dp"
+                android:padding="10dp"
                 app:hoursIndicatorColor="?colorPrimary"
                 app:hoursIndicatorMax="24"
                 app:hoursIndicatorProgress="7"

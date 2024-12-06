@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.datastore
+package com.hifnawy.circulardurationviewdemo.datastore
 
 /**
  * A general-purpose interface for objects that can be registered to observe specific

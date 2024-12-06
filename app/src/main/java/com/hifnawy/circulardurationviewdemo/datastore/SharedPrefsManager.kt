@@ -1,14 +1,14 @@
-package com.hifnawy.circulardurationview.datastore
+package com.hifnawy.circulardurationviewdemo.datastore
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
-import com.hifnawy.circulardurationview.Application
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.SharedPrefsKeys.ENABLE_MATERIAL_YOU
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.SharedPrefsKeys.ENABLE_PICTURE_IN_PICTURE
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.SharedPrefsKeys.THEME
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.Theme.DARK
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.Theme.LIGHT
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager.Theme.SYSTEM_DEFAULT
+import com.hifnawy.circulardurationviewdemo.Application
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.SharedPrefsKeys.ENABLE_MATERIAL_YOU
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.SharedPrefsKeys.ENABLE_PICTURE_IN_PICTURE
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.SharedPrefsKeys.THEME
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.Theme.DARK
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.Theme.LIGHT
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager.Theme.SYSTEM_DEFAULT
 
 /**
  * Manages shared preferences for the application, providing convenient methods to access and modify them.

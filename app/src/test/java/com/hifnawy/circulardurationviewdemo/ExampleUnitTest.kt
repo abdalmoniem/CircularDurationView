@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.demo
+package com.hifnawy.circulardurationviewdemo
 
 import org.junit.Test
 

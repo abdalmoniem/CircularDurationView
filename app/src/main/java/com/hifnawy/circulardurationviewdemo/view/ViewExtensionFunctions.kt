@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.view
+package com.hifnawy.circulardurationviewdemo.view
 
 import android.graphics.Rect
 import android.view.View

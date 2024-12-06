@@ -1,8 +1,8 @@
-package com.hifnawy.circulardurationview
+package com.hifnawy.circulardurationviewdemo
 
 import android.app.Application
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager
-import com.hifnawy.circulardurationview.datastore.SharedPrefsObserver
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsObserver
 
 /**
  * The main application class for the Caffeinate app.

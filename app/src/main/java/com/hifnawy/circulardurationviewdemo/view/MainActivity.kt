@@ -1,4 +1,4 @@
-package com.hifnawy.circulardurationview.view
+package com.hifnawy.circulardurationviewdemo.view
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -20,15 +20,15 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.slider.Slider
-import com.hifnawy.circulardurationview.Application
-import com.hifnawy.circulardurationview.datastore.MutableListExtensionFunctions.addObserver
-import com.hifnawy.circulardurationview.datastore.MutableListExtensionFunctions.removeObserver
-import com.hifnawy.circulardurationview.datastore.SharedPrefsManager
-import com.hifnawy.circulardurationview.datastore.SharedPrefsObserver
-import com.hifnawy.circulardurationview.demo.R
-import com.hifnawy.circulardurationview.demo.databinding.ActivityMainBinding
-import com.hifnawy.circulardurationview.view.ActivityExtensionFunctions.setActivityTheme
-import com.hifnawy.circulardurationview.view.ViewExtensionFunctions.onSizeChange
+import com.hifnawy.circulardurationviewdemo.Application
+import com.hifnawy.circulardurationviewdemo.R
+import com.hifnawy.circulardurationviewdemo.databinding.ActivityMainBinding
+import com.hifnawy.circulardurationviewdemo.datastore.MutableListExtensionFunctions.addObserver
+import com.hifnawy.circulardurationviewdemo.datastore.MutableListExtensionFunctions.removeObserver
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsManager
+import com.hifnawy.circulardurationviewdemo.datastore.SharedPrefsObserver
+import com.hifnawy.circulardurationviewdemo.view.ActivityExtensionFunctions.setActivityTheme
+import com.hifnawy.circulardurationviewdemo.view.ViewExtensionFunctions.onSizeChange
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,12 +40,13 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class MainActivity : AppCompatActivity(), SharedPrefsObserver {
 
-
     /**
      * Lazily initializes the binding for the activity's layout using [ActivityMainBinding].
      *
      * This binding is used to access the views defined in the activity's layout XML file.
      * The layout is inflated using the [getLayoutInflater] provided by the activity.
+     *
+     * @return [ActivityMainBinding] the binding object for the activity's layout.
      */
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -82,6 +83,8 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
      * The flag indicating whether the count down timer is currently running.
      *
      * This field is used to store the state of the count down timer, indicating whether it is currently running or not.
+     *
+     * @return [Boolean] true if the count down timer is running, false otherwise
      */
     private var isCountDownRunning = false
 
@@ -90,8 +93,20 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
      *
      * This field is used to store the size of the progress indicator, which is used to
      * determine the dimensions of the indicator when it is displayed on the screen.
+     *
+     * @return [Int] the size of the progress indicator
      */
     private var progressIndicatorSize = 0
+
+    /**
+     * The thickness of the progress indicators tracks.
+     *
+     * This field is used to store the thickness of the progress indicator track, which is used to
+     * determine the thickness of the track when it is displayed on the screen.
+     *
+     * @return [Int] the thickness of the progress indicator track
+     */
+    private var progressIndicatorsTrackThickness = 0
 
     /**
      * A lazily initialized instance of [PictureInPictureParams.Builder] that is used to enter picture-in-picture mode.
@@ -124,6 +139,8 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
      * This field is used to store the source rectangle hint that is passed to the
      * [PictureInPictureParams.Builder] when entering picture-in-picture mode.
      * It is used to specify the region of the screen that the activity is currently using.
+     *
+     * @return [Rect] the source rectangle hint
      *
      * @see PictureInPictureParams.Builder.setSourceRectHint
      */
@@ -183,6 +200,7 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
 
             progressIndicator.post {
                 progressIndicatorSize = progressIndicator.indicatorSize
+                progressIndicatorsTrackThickness = progressIndicator.indicatorsTrackThickness
 
                 root.onSizeChange { _, newWidth, newHeight, _, _ ->
                     Log.d(this@MainActivity::class.simpleName, "root layout size changed, newWidth: $newWidth, newHeight: $newHeight")
@@ -191,6 +209,10 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
                         indicatorSize = when {
                             isInPictureInPictureMode -> min(newWidth, newHeight) - paddingStart - paddingEnd
                             else                     -> progressIndicatorSize
+                        }
+                        indicatorsTrackThickness = when {
+                            isInPictureInPictureMode -> min(paddingStart, paddingEnd) / 2
+                            else                     -> progressIndicatorsTrackThickness
                         }
 
                         pipParamsBuilder?.run {
