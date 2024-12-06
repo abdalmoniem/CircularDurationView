@@ -1,0 +1,5 @@
+fixed critical and visual bugs
+
+package name of the demo app was changed because it was causing conflicts with the library's package name
+
+**Full Changelog**: https://github.com/abdalmoniem/CircularDurationView/compare/1.1.2...1.1.3

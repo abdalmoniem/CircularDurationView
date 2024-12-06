@@ -3,6 +3,14 @@
 A custom view for Android that displays a duration in a circular fashion.
 
 [![](https://jitpack.io/v/abdalmoniem/CircularDurationView.svg)](https://jitpack.io/#abdalmoniem/CircularDurationView)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
+[![Debug Build](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/build_debug_variant.yml/badge.svg)](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/build_debug_variant.yml)
+[![Release Build](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/build_release_variant.yml/badge.svg)](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/build_release_variant.yml)
+[![New Release](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/publish_release_on_tag.yml/badge.svg)](https://github.com/abdalmoniem/CircularDurationView/actions/workflows/publish_release_on_tag.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/abdalmoniem/CircularDurationView/badge)](https://www.codefactor.io/repository/github/abdalmoniem/CircularDurationView)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0beba9b2841c40aa982513161d5febe5)](https://app.codacy.com/gh/abdalmoniem/CircularDurationView)
+[![Views](https://views.whatilearened.today/views/github/abdalmoniem/CircularDurationView.svg)](https://github.com/abdalmoniem/CircularDurationView)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/abdalmoniem/CircularDurationView/total?logo=github&logoSize=auto&label=GitHub%20Downloads)](https://github.com/abdalmoniem/CircularDurationView/releases/latest)
 
 ## Screenshots
 

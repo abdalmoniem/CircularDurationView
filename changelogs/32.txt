@@ -1,0 +1,3 @@
+fix xml reformatting in README.md
+
+**Full Changelog**: https://github.com/abdalmoniem/CircularDurationView/compare/1.0.0...1.1.0
