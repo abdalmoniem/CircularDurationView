@@ -1,6 +1,8 @@
-# CircularDurationView
+<!--suppress CheckImageSize, HtmlDeprecatedAttribute -->
 
-A custom view for Android that displays a duration in a circular fashion.
+<div align=center>
+    <h1>CircularDurationView</h1>
+    <p>A custom view for Android that displays a duration in a circular fashion.</p>
 
 [![](https://jitpack.io/v/abdalmoniem/CircularDurationView.svg)](https://jitpack.io/#abdalmoniem/CircularDurationView)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)
@@ -11,7 +13,7 @@ A custom view for Android that displays a duration in a circular fashion.
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/0beba9b2841c40aa982513161d5febe5)](https://app.codacy.com/gh/abdalmoniem/CircularDurationView)
 [![Views](https://views.whatilearened.today/views/github/abdalmoniem/CircularDurationView.svg)](https://github.com/abdalmoniem/CircularDurationView)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/abdalmoniem/CircularDurationView/total?logo=github&logoSize=auto&label=GitHub%20Downloads)](https://github.com/abdalmoniem/CircularDurationView/releases/latest)
-
+</div>
 ## Screenshots
 
 <table>
