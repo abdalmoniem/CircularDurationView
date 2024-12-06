@@ -36,13 +36,10 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.INFINITE
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.nanoseconds
-import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : AppCompatActivity(), SharedPrefsObserver {
+
 
     /**
      * Lazily initializes the binding for the activity's layout using [ActivityMainBinding].
@@ -237,7 +234,7 @@ class MainActivity : AppCompatActivity(), SharedPrefsObserver {
                 if (!isCountDownRunning) {
                     isCountDownRunning = true
 
-                    countDownTimerJob = startCountdown(progressIndicator.progress, 50.milliseconds, { remaining ->
+                    countDownTimerJob = startCountdown(progressIndicator.progress, 5.milliseconds, { remaining ->
                         progressIndicator.progress = remaining
                     }) {
                         isCountDownRunning = false

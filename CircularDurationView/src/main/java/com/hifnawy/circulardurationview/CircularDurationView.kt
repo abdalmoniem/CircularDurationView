@@ -68,8 +68,16 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      *
      * @return the given value converted from pixels to dp (density-independent pixels).
      */
-    private val Int.dp: Int
+    private val Int.dp
         get() = (this * Resources.getSystem().displayMetrics.density).roundToInt()
+
+    /**
+     * The height of the text.
+     *
+     * @return [Float] The height of the text.
+     */
+    private val Paint.textHeight
+        get() = fontMetrics.descent + fontMetrics.ascent
 
     /**
      * The attach state change listener for the view.
@@ -83,28 +91,63 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      *
      * @return [CircularProgressIndicator] The progress indicator for the hours.
      */
-    private var mHoursIndicator: CircularProgressIndicator
+    private var mHoursIndicator = CircularProgressIndicator(context)
 
     /**
      * The progress indicator for the minutes.
      *
      * @return [CircularProgressIndicator] The progress indicator for the minutes.
      */
-    private var mMinutesIndicator: CircularProgressIndicator
+    private var mMinutesIndicator = CircularProgressIndicator(context)
 
     /**
      * The progress indicator for the seconds.
      *
      * @return [CircularProgressIndicator] The progress indicator for the seconds.
      */
-    private var mSecondsIndicator: CircularProgressIndicator
+    private var mSecondsIndicator = CircularProgressIndicator(context)
 
     /**
      * The paint used to draw the text.
      *
      * @return [Paint] The paint used to draw the text.
      */
-    private val mTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mTextPaint by lazy {
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = mTextColor
+            typeface = mTypeFace
+            textAlign = mTextAlign
+            textSize = (mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2f) * 0.5f
+        }
+    }
+
+    /**
+     * The paint used to draw the sub-text.
+     *
+     * @return [Paint] The paint used to draw the text.
+     */
+    private val mSubTextPaint by lazy {
+        Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = mTextColor
+            typeface = mTypeFace
+            textAlign = mTextAlign
+            textSize = (mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2f) * 0.5f
+        }
+    }
+
+    /**
+     * The paint used to draw rectangles around text for debugging purposes.
+     *
+     * @return [Paint] The paint used to draw the rectangle.
+     */
+    private val mRectPaint by lazy {
+        Paint().apply {
+            isAntiAlias = true
+            style = Paint.Style.STROKE
+            strokeWidth = 6f
+            color = mTextColor
+        }
+    }
 
     /**
      * Gets or sets the text to be displayed.
@@ -1226,10 +1269,6 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
 
         mProgress = hoursIndicatorProgress.hours + minutesIndicatorProgress.minutes + secondsIndicatorProgress.seconds
 
-        mHoursIndicator = CircularProgressIndicator(context)
-        mMinutesIndicator = CircularProgressIndicator(context)
-        mSecondsIndicator = CircularProgressIndicator(context)
-
         addView(mHoursIndicator)
         addView(mMinutesIndicator)
         addView(mSecondsIndicator)
@@ -1305,55 +1344,44 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
 
         val text = mText.takeIf { it.isNotEmpty() } ?: mProgress.toFormattedTime()
         val availableTextWidth = mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2f
-        mTextPaint.apply {
-            color = mTextColor
-            textAlign = mTextAlign
-            textSize = availableTextWidth * 0.5f
-            typeface = mTypeFace
-        }
 
         var textWidth = mTextPaint.measureText(text)
-        while (textWidth + (mTextPadding * 2f) > availableTextWidth) {
+        var textHeight = mTextPaint.textHeight
+        while (textWidth + (mTextPadding * 2f) > availableTextWidth && mTextPaint.textSize > 10f) {
             mTextPaint.textSize -= 1f
-            textWidth = mTextPaint.measureText(text)
-        }
-        val textHeight = mTextPaint.fontMetrics.descent + mTextPaint.fontMetrics.ascent
 
-        val x = width * 0.5f
-        val y = height * 0.5f - textHeight * 0.5f
-        canvas.drawText(text, x, y, mTextPaint)
+            textWidth = mTextPaint.measureText(text)
+            textHeight = mTextPaint.textHeight
+        }
+
+        val textX = width * 0.5f
+        val textY = height * 0.5f - textHeight * 0.5f
+        canvas.drawText(text, textX, textY, mTextPaint)
+        // val textBounds = getTextBounds(text, textX, textY, mTextPaint)
+        // canvas.drawRect(textBounds, mRectPaint)
 
         if (isInfinite || !mShowSubText) return
 
+        mSubTextPaint.textSize = mTextPaint.textSize
+
         val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds / 1_000_000 }
         val subText = String.format(Locale.ENGLISH, ".%03d", nanos % 1_000)
-        val subTextWidth = mTextPaint.measureText(subText)
-        val subTextHeight = mTextPaint.fontMetrics.descent + mTextPaint.fontMetrics.ascent
-        var subTextX = x + (textWidth * 0.5f) - (subTextWidth * 0.5f) - (mSecondsIndicatorTrackThickness * 0.5f) - mTextPadding
-        val subTextY = y - subTextHeight + mSubTextPadding
+        val subTextWidth = mSubTextPaint.measureText(subText)
+        val subTextHeight = mSubTextPaint.textHeight
+        var subTextX = textX + (textWidth * 0.5f) - (subTextWidth * 0.5f) - (mSecondsIndicatorTrackThickness * 0.5f) /* - mTextPadding */
+        val subTextY = textY - subTextHeight + mSubTextPadding
+        var subTextBounds = getTextBounds(subText, subTextX, subTextY, mSubTextPaint)
         val secondsIndicatorRadius = mSecondsIndicator.indicatorSize * 0.5f - mSecondsIndicatorTrackThickness
 
-        val textBounds = Rect()
-        mTextPaint.getTextBounds(subText, 0, subText.length, textBounds)
-        var left = subTextX - textBounds.width() * 0.5f
-        var top = subTextY + textBounds.top
-        var right = subTextX + textBounds.width() * 0.5f
-        var bottom = subTextY + textBounds.bottom
-        var rect = RectF(left, top, right, bottom)
-
-        while (isTextBoundsOutsideRadius(rect, x, y + textHeight * 0.5f, secondsIndicatorRadius)) {
-            mTextPaint.textSize -= 0.1f
+        while (isTextBoundsOutsideRadius(subTextBounds, textX, textY + textHeight * 0.5f, secondsIndicatorRadius)) {
+            mSubTextPaint.textSize -= 0.1f
             subTextX -= 0.1f
 
-            mTextPaint.getTextBounds(subText, 0, subText.length, textBounds)
-            left = subTextX - textBounds.width() * 0.5f
-            top = subTextY + textBounds.top
-            right = subTextX + textBounds.width() * 0.5f
-            bottom = subTextY + textBounds.bottom
-            rect = RectF(left, top, right, bottom)
+            subTextBounds = getTextBounds(subText, subTextX, subTextY, mSubTextPaint)
         }
 
-        canvas.drawText(subText, subTextX, subTextY, mTextPaint)
+        canvas.drawText(subText, subTextX, subTextY, mSubTextPaint)
+        // canvas.drawRect(subTextBounds, mRectPaint)
     }
 
     /**
@@ -1368,7 +1396,11 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
      * @return [Boolean] `true` if the text bounds are outside the circle, `false` otherwise.
      */
     private fun isTextBoundsOutsideRadius(textBounds: RectF, circleX: Float, circleY: Float, radius: Float): Boolean {
-        (0..360).forEach { angle ->
+        // Loop through all possible angles and check if any cartesian point of the circle is inside the text bounds
+        val stepSize = 0.5f
+        generateSequence(0f) {
+            if (it + stepSize <= 360f) it + stepSize else null
+        }.forEach { angle ->
             val radians = Math.toRadians(angle.toDouble())
             val x = circleX + radius * cos(radians).toFloat()
             val y = circleY + radius * sin(radians).toFloat()
@@ -1380,21 +1412,24 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
     }
 
     /**
-     * TODO: Fix this
+     * Gets the bounds of the text.
      *
-     * This method seems to work incorrectly even though the method body works perfectly in [dispatchDraw]
-     * the issue is that it returns a RectF with a width double the actual text width
+     * @param textStr The text to measure.
+     * @param textX The x coordinate of the center of the text.
+     * @param textY The y coordinate of the center of the text.
+     * @param textPaint The paint used to draw the text.
+     *
+     * @return [RectF] The bounds of the text.
      */
-    private fun getTextBounds(textStr: String, textX: Float, textY: Float, textPaint: Paint): RectF {
-        val textBounds = Rect()
+    private fun getTextBounds(textStr: String, textX: Float, textY: Float, textPaint: Paint): RectF = Rect().let { textBounds ->
         textPaint.getTextBounds(textStr, 0, textStr.length, textBounds)
 
-        val left = textX - textBounds.width() * 0.2f
+        val left = textX - textBounds.width() * 0.5f
         val top = textY + textBounds.top
         val right = textX + textBounds.width() * 0.5f
         val bottom = textY + textBounds.bottom
 
-        return RectF(left, top, right, bottom)
+        RectF(left, top, right, bottom)
     }
 
     /**
@@ -1524,8 +1559,8 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         override fun onViewAttachedToWindow(view: View) {
             view.findViewTreeLifecycleOwner()?.let { owner ->
                 mLifecycleScope = owner.lifecycleScope
-                Log.d(this@CircularDurationView::class.simpleName,"LifecycleOwner attached: ${owner::class.simpleName}@${owner.hashCode()}")
-            } ?: Log.e(this@CircularDurationView::class.simpleName,"LifecycleOwner is null, ensure the parent has a LifecycleOwner.")
+                Log.d(this@CircularDurationView::class.simpleName, "LifecycleOwner attached: ${owner::class.simpleName}@${owner.hashCode()}")
+            } ?: Log.e(this@CircularDurationView::class.simpleName, "LifecycleOwner is null, ensure the parent has a LifecycleOwner.")
         }
 
         /**
