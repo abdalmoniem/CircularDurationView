@@ -1,4 +1,4 @@
-name: "CodeQL Advanced"
+name: CodeQL Security Scan
 run-name: ${{ github.workflow }} ${{ github.event.repository.updated_at}}
 
 on:
@@ -7,22 +7,17 @@ on:
   pull_request:
     branches: [ "main" ]
   schedule:
-    - cron: '15 8 * * 4'
+    - cron: "00 00 * * 5"
 
 jobs:
   analyze:
-    name: Analyze (${{ matrix.language }})
-    
+    name: 'CodeQL Security Scan: Analyze (${{ matrix.language }})'
     runs-on: ubuntu-latest
+    
     permissions:
-      # required for all workflows
-      security-events: write
-
-      # required to fetch internal or private CodeQL packs
-      packages: read
-
-      # only required for workflows in private repositories
-      actions: read
+      security-events: write # required for all workflows
+      packages: read # required to fetch internal or private CodeQL packs
+      actions: read # only required for workflows in private repositories
       contents: read
 
     strategy:
@@ -58,15 +53,40 @@ jobs:
     - name: Validate Gradle Wrapper
       uses: gradle/wrapper-validation-action@v2.1.3
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
 
-    - if: matrix.build-mode == 'manual'
-      run: bash gradlew app:assembleDebug
+    - name: Build CircularDurationView
+      if: matrix.build-mode == 'manual'
+      run: bash gradlew :CircularDurationView:assembleDebug
+
+    - name: Build App
+      if: matrix.build-mode == 'manual'
+      run: bash gradlew :app:assembleDebug
+
+    - name: Get AAR Name
+      run: |
+        aar=$(find CircularDurationView/build/outputs/aar/*.aar)
+        echo $aar
+        echo AAR_PATH=$debugApk >> $GITHUB_ENV
+
+    - name: Get APK Name
+      run: |
+        apk=$(find app/build/outputs/apk/debug/*.apk)
+        echo $apk
+        echo APK_PATH=$debugApk >> $GITHUB_ENV
+
+    - name: Create Artifact ${{ env.ARTIFACT_NAME }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: build_artifacts
+        path: |
+          ${{ env.AAR_PATH }}
+          ${{ env.APK_PATH }}
+        if-no-files-found: error
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
