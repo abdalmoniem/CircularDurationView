@@ -116,8 +116,8 @@ android {
         compileSdk = 35
         //noinspection EditedTargetSdkVersion
         targetSdk = 35
-        versionCode = 33
-        versionName = "1.1.3"
+        versionCode = 34
+        versionName = "1.1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
