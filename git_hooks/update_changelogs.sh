@@ -3,11 +3,18 @@
 gitTopLevel="$(git rev-parse --show-toplevel)"
 versionCodeFilter="\(versionCode\s\+=\s\+\)\([[:digit:]]\+\)"
 changelogsPath="$gitTopLevel/changelogs"
-tags=($(git tag))
+mapfile -t tags < <(git tag)
 changelogs=0
 
 isWriteChanges=false
 isCommitChanges=false
+
+help() {
+  echo "Usage: $0 [--write_changes] [--commit_changes]"
+  echo "Options:"
+  echo "  --write_changes  Write changes to changelogs folder"
+  echo "  --commit_changes Commit changes to changelogs folder"
+}
 
 # Parse command-line flags
 while [[ $# -gt 0 ]]; do
@@ -20,9 +27,13 @@ while [[ $# -gt 0 ]]; do
             isCommitChanges=true
             shift # Move to the next argument
             ;;
+        --help)
+            help
+            exit 0
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--write_changes] [--commit_changes]"
+            help
             exit 1
             ;;
     esac
@@ -73,8 +84,6 @@ if [[ $changelogs -gt 0 && "$isCommitChanges" == true ]]; then
   echo
 
   if [ -n "$isCurrentCommitOnRemote" ]; then
-    newVersionName="${newTag#v}"
-
     echo "commit '$currentCommitHash' is on the remote branch, creating a new change log commit..."
     echo
 
