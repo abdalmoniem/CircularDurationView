@@ -65,7 +65,7 @@ do
     fi
   done
   echo "------------------------------"
-done < <(git log $previousTag..$latestTag --pretty=format:"%H")
+done
 
 if [ $changelogs -gt 0 ]; then
   echo "$changelogs changelog(s) saved to '$changelogsPath/$latestVersionCode.txt'!"
@@ -91,4 +91,3 @@ if [ $changelogs -gt 0 ]; then
 else
   echo "No / $changelogs change log(s) found between $previousTag and $latestTag"
 fi
-

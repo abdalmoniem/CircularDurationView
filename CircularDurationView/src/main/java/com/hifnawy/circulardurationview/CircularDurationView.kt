@@ -1345,7 +1345,6 @@ class CircularDurationView @JvmOverloads constructor(context: Context, attrs: At
         val text = mText.takeIf { it.isNotEmpty() } ?: mProgress.toFormattedTime()
         val availableTextWidth = mSecondsIndicator.indicatorSize - mSecondsIndicator.trackThickness * 2f
 
-        mTextPaint.textSize = availableTextWidth * 0.5f
         var textWidth = mTextPaint.measureText(text)
         var textHeight = mTextPaint.textHeight
         while (textWidth + (mTextPadding * 2f) > availableTextWidth && mTextPaint.textSize > 10f) {

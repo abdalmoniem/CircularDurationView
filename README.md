@@ -14,6 +14,7 @@
 [![Views](https://views.whatilearened.today/views/github/abdalmoniem/CircularDurationView.svg)](https://github.com/abdalmoniem/CircularDurationView)
 [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/abdalmoniem/CircularDurationView/total?logo=github&logoSize=auto&label=GitHub%20Downloads)](https://github.com/abdalmoniem/CircularDurationView/releases/latest)
 </div>
+
 ## Screenshots
 
 <table>
@@ -165,3 +166,125 @@ progressIndicator.text = "00:00:00"
 progressIndicator.progress = 100.minutes
 ...
 ```
+
+# Note for Developers (and myself 😅)
+
+<details>
+<summary>
+<h2>Box-Circle Intersection</h2>
+</summary>
+
+When I was developing the library, there was a need to calculate the intersection of the
+`bounding box` of the subtext and the seconds indicator (which is a circle).
+
+Here is what I did:
+
+## 1. Draw the `bounding box` of the subtext on a canvas.
+
+## 2. Draw the `bounding circle` of the seconds indicator on a canvas.
+
+## 3. Calculate the intersection of the two bounding boxes.
+
+Breaking it down step by step:
+
+## 1. Draw the `bounding box` of the subtext on a canvas.
+
+### 1. First I needed to get the `bounding box` of the subtext. Here's how:
+
+```kotlin
+private fun getTextBounds(textStr: String, textX: Float, textY: Float, textPaint: Paint): RectF = Rect().let { textBounds ->
+    textPaint.getTextBounds(textStr, 0, textStr.length, textBounds)
+
+    val left = textX - textBounds.width() * 0.5f
+    val top = textY + textBounds.top
+    val right = textX + textBounds.width() * 0.5f
+    val bottom = textY + textBounds.bottom
+
+    RectF(left, top, right, bottom)
+}
+```
+
+## 2. Draw the `bounding circle` of the seconds indicator on a canvas.
+
+### 1. First I needed to get the `bounding circle` of the seconds indicator. This is was very simple to
+
+get, since the seconds indicator is a circle and it's radius is already calculated based on the
+hours and minutes indicators.
+
+```kotlin
+  val secondsIndicatorRadius = mSecondsIndicator.indicatorSize * 0.5f - mSecondsIndicatorTrackThickness
+```
+
+## 3. Calculate the intersection of the two bounding boxes.
+
+### 1. Now that I have the `bounding box` of the subtext and the `bounding circle` of the seconds
+
+indicator, I can calculate the intersection of the two bounding boxes. By looping through all
+the points of the circle and checking if they are inside the text bounds, I can get the
+intersection of the `bounding box` of the subtext and the `bounding circle` of the seconds
+indicator.
+
+```kotlin
+private fun isTextBoundsOutsideRadius(textBounds: RectF, circleX: Float, circleY: Float, radius: Float): Boolean {
+    // Loop through all possible angles and check if any cartesian point of the circle is inside the text bounds
+    val stepSize = 0.5f
+    generateSequence(0f) {
+        if (it + stepSize <= 360f) it + stepSize else null
+    }.forEach { angle ->
+        val radians = Math.toRadians(angle.toDouble())
+        val x = circleX + radius * cos(radians).toFloat()
+        val y = circleY + radius * sin(radians).toFloat()
+
+        if (x <= textBounds.right && x >= textBounds.left && y >= textBounds.top && y <= textBounds.bottom) return true
+    }
+
+    return false
+}
+  ```
+
+> Notice that the step size is **_`0.5f`_**, which means that I will loop through all the angles
+> from **_`0`_** to **_`360`_** degrees, with a step size of **_`0.5f`_** degrees. This will give
+> me **_`720`_** angles to compare with the text bounds. By comparing the cartesian coordinates of
+> the circle with the text bounds, I can determine if the circle is inside the text bounds or
+> outside the text bounds. Playing with the step size will determine how accurate the intersection
+> is but at the cost of performance.
+
+<div align="center">
+  <img src="screenshots/box_circle_intersection.png" alt="box-circle-intersection"/>
+</div>
+
+Notice the `yellow` and `magenta` points, these are the cartesian coordinates of the circle that
+that lie between the `top` and `bottom` of the text bounds and the `left` and `right` of the
+text bounds respectively. the `red` points are the cartesian coordinates of the circle that lie
+both between the `top` and `bottom` of the text bounds and the `left` and `right` of the text
+bounds.
+
+### 2. Now I can take action based on the intersection of the two bounding boxes.
+
+```kotlin
+mSubTextPaint.textSize = mTextPaint.textSize
+
+val nanos = mProgress.toComponents { _, _, _, nanoseconds -> nanoseconds / 1_000_000 }
+val subText = String.format(Locale.ENGLISH, ".%03d", nanos % 1_000)
+val subTextWidth = mSubTextPaint.measureText(subText)
+val subTextHeight = mSubTextPaint.textHeight
+var subTextX = textX + (textWidth * 0.5f) - (subTextWidth * 0.5f) - (mSecondsIndicatorTrackThickness * 0.5f) /* - mTextPadding */
+val subTextY = textY - subTextHeight + mSubTextPadding
+var subTextBounds = getTextBounds(subText, subTextX, subTextY, mSubTextPaint)
+val secondsIndicatorRadius = mSecondsIndicator.indicatorSize * 0.5f - mSecondsIndicatorTrackThickness
+
+while (isTextBoundsOutsideRadius(subTextBounds, textX, textY + textHeight * 0.5f, secondsIndicatorRadius)) {
+    mSubTextPaint.textSize -= 0.1f
+    subTextX -= 0.1f
+
+    subTextBounds = getTextBounds(subText, subTextX, subTextY, mSubTextPaint)
+}
+```
+
+Since the subtext's size is the same as the main text to start, I need to make sure that the subtext
+is inside the radius of the seconds indicator. If the subtext is outside the radius, I decrease the
+size of the subtext and move it to the left until it is inside the radius.
+
+### 3. Finally, I draw the subtext on the canvas.
+
+</details>
